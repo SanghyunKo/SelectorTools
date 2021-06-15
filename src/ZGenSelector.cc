@@ -16,7 +16,7 @@ void ZGenSelector::Init(TTree *tree)
     }
     // Add CutFlow for Unknown to understand when channels aren't categorized
     histMap1D_[{"CutFlow", Unknown, Central}] = {};
-    std::vector<std::string> basehists1D = {"CutFlow", "ZMass", "yZ", "ptZ", "phiZ", "ptl1", "etal1", "phil1", "ptl2", "etal2", "phil2", "nLeptons", 
+    std::vector<std::string> basehists1D = {"CutFlow", "ZMass", "ZMassWide", "ZMassLog", "yZ", "ptZ", "phiZ", "ptl1", "etal1", "phil1", "ptl2", "etal2", "phil2", "nLeptons", 
     "ptj1", "ptj2", "ptj3", "etaj1", "etaj2", "etaj3", "phij1", "phij2", "phij3", "nJets",
 	"dRj1l1", "dRj1l2", "dRj2l1", "dRj2l2", "dRj1j2", "dRl1l2", "MET", "HT",};
     hists1D_ = basehists1D;
@@ -27,7 +27,7 @@ void ZGenSelector::Init(TTree *tree)
     //}
     systHists_ = hists1D_;
 
-    weighthists1D_ = {"CutFlow", "ZMass", "yZ", "ptZ", "phiZ", "ptl1", "etal1", "ptl2", "etal2", "nLeptons",
+    weighthists1D_ = {"CutFlow", "ZMass", "ZMassWide", "ZMassLog", "yZ", "ptZ", "phiZ", "ptl1", "etal1", "ptl2", "etal2", "nLeptons",
         "ptj1", "ptj2", "ptj3", "etaj1", "etaj2", "etaj3", "nJets",
         "MET", "HT", };
     nLeptons_ = 2;
@@ -137,8 +137,8 @@ void ZGenSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::str
             (selection_ == ZselectionTight && (std::abs(lep1.eta()) > 2.4 || std::abs(lep2.eta()) > 2.4)))
         failStep = step;
     step++;
-    if ((zCand.mass() < 60. || zCand.mass() > 120.) || (selection_ == ZselectionTight && (zCand.mass() < 76.1876 || zCand.mass() > 106.1786)))
-        failStep = step;
+    //if ((zCand.mass() < 60. || zCand.mass() > 120.) || (selection_ == ZselectionTight && (zCand.mass() < 76.1876 || zCand.mass() > 106.1786)))
+    //    failStep = step;
 
     for (int j = 0; j < (failStep == 0 ? step : failStep); j++) {
         SafeHistFill(histMap1D_, "CutFlow", channel_, variation.first, j, weight);
@@ -194,6 +194,8 @@ void ZGenSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::str
 
             thweight *= weight;
             SafeHistFill(weighthistMap1D_, "ZMass", channel_, variation.first, zCand.mass(), i, thweight);
+            SafeHistFill(weighthistMap1D_, "ZMassWide", channel_, variation.first, zCand.mass(), i, thweight);
+            SafeHistFill(weighthistMap1D_, "ZMassLog", channel_, variation.first, std::log10(zCand.mass()), i, thweight);
             SafeHistFill(weighthistMap1D_, "yZ", channel_, variation.first, zCand.Rapidity(), i, thweight);
             SafeHistFill(weighthistMap1D_, "ptZ", channel_, variation.first, zCand.pt(), i, thweight);
             SafeHistFill(weighthistMap1D_, "phiZ", channel_, variation.first, zCand.phi(), i, thweight);
@@ -222,6 +224,8 @@ void ZGenSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::str
 
     SafeHistFill(histMap1D_, "CutFlow", channel_, variation.first, step++, weight);
     SafeHistFill(histMap1D_, "ZMass", channel_, variation.first, zCand.mass(), weight);
+    SafeHistFill(histMap1D_, "ZMassWide", channel_, variation.first, zCand.mass(), weight);
+    SafeHistFill(histMap1D_, "ZMassLog", channel_, variation.first, std::log10(zCand.mass()), weight);
     SafeHistFill(histMap1D_, "yZ", channel_, variation.first, zCand.Rapidity(), weight);
     SafeHistFill(histMap1D_, "ptZ", channel_, variation.first, zCand.pt(), weight);
     SafeHistFill(histMap1D_, "phiZ", channel_, variation.first, zCand.phi(), weight);
@@ -280,6 +284,8 @@ void ZGenSelector::FillHistograms(Long64_t entry, std::pair<Systematic, std::str
                 (*Generator_id1 == -2 && *Generator_id2 == 21) || (*Generator_id1 == 21 && *Generator_id2 == -2))
         partonicChan = "ubarg_dbarg";
     SafeHistFill(histMap1D_, (partonicChan+"_ZMass").c_str(), channel_, variation.first, zCand.mass(), weight);
+    SafeHistFill(histMap1D_, (partonicChan+"_ZMassWide").c_str(), channel_, variation.first, zCand.mass(), weight);
+    SafeHistFill(histMap1D_, (partonicChan+"_ZMassLog").c_str(), channel_, variation.first, std::log10(zCand.mass()), weight);
     SafeHistFill(histMap1D_, (partonicChan+"_yZ").c_str(), channel_, variation.first, zCand.Rapidity(), weight);
     SafeHistFill(histMap1D_, (partonicChan+"_ptZ").c_str(), channel_, variation.first, zCand.pt(), weight);
     SafeHistFill(histMap1D_, (partonicChan+"_ptl1").c_str(), channel_, variation.first, lep1.pt(), weight);

@@ -22,7 +22,7 @@ class Submitter:
 	def __init__(self):
 		self.pwd = os.getcwd()
 		self.user = ""
-		self.se_home = "dcap://cluster142.knu.ac.kr//pnfs/knu.ac.kr/data/cms/store/user/"
+		self.se_home = "/pnfs/knu.ac.kr/data/cms/store/user/"
 		if args.se and args.u != None:
 			self.user = args.u
 		else:
@@ -101,14 +101,13 @@ source /cvmfs/cms.cern.ch/cmsset_default.sh
 eval `scramv1 runtime -sh`
 export LD_PRELOAD="/usr/lib64/libpdcap.so"
 
-./Utilities/scripts/makeHistFile.py \\
--f """ + self.input_dir + """/""" + self.sample_name + """_${process}.root \\
--a """ + args.a + """ -s """ + args.s + """ --input_tier """ + args.input_tier + """ \\
-"""
-		if not selector_args == "":
-			run += """--selectorArgs """ + selector_args + """ \\
-"""
-		run += """-o condor_base/""" + self.base_name + "/temp/" + self.base_name + "_${process}.root\n"
+./Utilities/scripts/makeHistFile.py"""
+                run += """ -f """ + "dcap://cluster142.knu.ac.kr//pnfs/knu.ac.kr/data/cms/store/user/" + self.user + "/" + args.d + """/""" + self.sample_name + """_${process}.root"""
+                run += """ -a """ + args.a + """ -s """ + args.s + """ --input_tier """ + args.input_tier
+		run += """ -o condor_base/""" + self.base_name + "/temp/" + self.base_name + """_${process}.root"""
+
+                if not selector_args == "":
+                  run += """ --selectorArgs """ + selector_args
 		
 		file_condor_jdl = open(self.base_dir + "/scripts/condor.jdl", "w")
 		file_condor_jdl.write(condor_jdl)
